@@ -66,8 +66,50 @@ Départage : critère 2 (innovation), puis critère 4 (démo).
 
 ## Démarrer
 
+Le projet est une application Web PHP 8 (extensions `curl` et `fileinfo`).
+
 ```bash
-cp .env.example .env   # puis renseigner GEMINI_API_KEY
+cp .env.example .env
+# renseigner les clés nécessaires dans .env
+php -S localhost:8000 -t public
 ```
 
-Complétez ensuite cette section avec le canal choisi (Web ou WhatsApp), les commandes pour lancer le projet et le lien de la démo.
+Ouvre ensuite http://localhost:8000.
+
+L'application permet de coller un SMS ou d'envoyer une capture d'écran, puis
+affiche une estimation du risque avec des explications en français simple. Le
+mode apprentissage s'active uniquement avec une commande commençant par `/`.
+
+## Configuration
+
+| Variable | Rôle |
+| --- | --- |
+| `LLM_PROVIDER` | `google` ou `groq` |
+| `GEMINI_API_KEY` | Clé Google AI Studio si le fournisseur est `google` |
+| `GEMMA_MODEL` | Modèle Gemma utilisé avec Google |
+| `GROQ_API_KEY` | Clé Groq si le fournisseur est `groq` |
+| `GROQ_MODEL` | Modèle utilisé avec Groq |
+| `SUPABASE_URL` | URL du projet Supabase (synchronisation facultative) |
+| `SUPABASE_PUBLISHABLE_KEY` | Clé publishable Supabase (facultative) |
+
+Ne publie jamais le fichier `.env` ou une clé `secret` / `service_role`
+Supabase. La synchronisation Supabase nécessite aussi une configuration RLS.
+
+## Déploiement sur Vercel
+
+Le projet utilise le `Dockerfile` FrankenPHP à la racine. Garde la racine du
+dépôt comme **Root Directory**, configure les variables d'environnement dont
+l'application a besoin dans Vercel et redéploie après leur modification.
+
+Le résultat du scanner est une estimation, pas une garantie. En cas de doute,
+vérifie toujours dans l'application officielle de ton opérateur.
+
+## Structure
+
+```text
+public/          pages Web et API
+partials/        en-tête et pied de page partagés
+src/             services Gemini, scanner et apprentissage
+data/            formats officiels et signes d'arnaque
+.env.example     modèle de configuration sans secrets
+```

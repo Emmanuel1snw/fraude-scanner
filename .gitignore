@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+/vendor/
 
 # node
 node_modules/
