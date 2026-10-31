@@ -1,97 +1,115 @@
-<<<<<<< HEAD
-# fraude-scanner
-Assistant intelligent de détection des fraudes Mobile Money avec Gemma
-=======
-# Fraude Scanner
+# Hackathon « Build with Gemma » — Scanner de SMS Mobile Money
 
-Vérifie en quelques secondes si un SMS Mobile Money (T-Money, Moov Money) ressemble à une arnaque.
-Projet réalisé pour le hackathon **Build with Gemma** — Hacktoberfest Hack Day Lomé × LBS CS Club (31 octobre 2026).
+Hacktoberfest Hack Day Lomé × LBS CS Club · 31 octobre 2026 · Lomé Business School
 
-## Fonctionnalités
+## Le problème
 
-- **Scanner d'arnaques** : colle un SMS ou joins une capture d'écran, obtiens un verdict clair
-  (vert / orange / rouge) avec les raisons et un conseil pratique.
-- **Mode apprentissage** (`/apprendre`, `/resume`, `/plan`, `/quiz`, `/reponse`, `/stop`) :
-  révise tes cours avec Gemma.
-- **Historique** conservé localement et synchronisé entre appareils après connexion ;
-  les signalements restent dans le navigateur.
-- **Règles de prudence** : si Gemma ne répond pas ou doute, jamais de verdict « légitime » à tort.
+Au Togo, le Mobile Money est utilisé partout, et les arnaques par SMS et appels falsifiés sont quotidiennes : « tu as reçu un dépôt par erreur, renvoie-moi… », faux concours, fausses tontines.
 
-## Installation
+## Votre mission
+
+Construire avec **Gemma** un bot (Web ou WhatsApp) qui permet à n'importe qui de savoir en quelques secondes si un SMS Mobile Money est authentique ou s'il s'agit d'une arnaque.
+
+Le bot doit :
+1. **Recevoir** la capture d'écran ou le texte d'un SMS Mobile Money suspect.
+2. **Analyser** : extraire les infos clés (montant, expéditeur, syntaxe) et vérifier la conformité avec les vrais formats de SMS officiels (T-Money / Moov Money).
+3. **Alerter** : répondre clairement, en français simple, si le message est légitime ou une tentative d'escroquerie.
+
+## Règles (équipes de 2 à 4 personnes)
+
+1. Choisir un canal : Web ou WhatsApp.
+2. Gemma est essentielle : le projet ne doit pas pouvoir marcher sans elle.
+3. Alerte en français simple (bonus : une langue locale, éwé ou kabiyè).
+4. Démo en direct de 3 minutes avec de vrais exemples de SMS, légitimes et frauduleux.
+5. Aucune vraie donnée personnelle ni vrai numéro : messages d'exemple ou anonymisés.
+6. Volet « Apprendre » : actif seulement sur commande commençant par « / ».
+
+### Volet « Apprendre » (complémentaire)
+
+L'étudiant téléverse son cours (PDF, photo ou texte) et révise. Sans commande, le bot reste en mode scanner.
+
+| Commande | Rôle |
+| --- | --- |
+| `/apprendre` | active le mode apprentissage et invite à téléverser le cours |
+| `/plan` | plan d'apprentissage sur plusieurs jours selon la date d'examen |
+| `/quiz` | questions sur le cours, avec correction |
+| `/resume` | résumé ou fiches de révision |
+| `/stop` | retour au scanner d'arnaques |
+
+## Notation (5 critères × 4 points = 20)
+
+1. Compréhension du problème et du public
+2. Innovation et originalité
+3. Usage de Gemma
+4. Démo et qualité technique
+5. Impact, faisabilité et respect des contraintes
+
+Départage : critère 2 (innovation), puis critère 4 (démo).
+
+## Planning
+
+| Heure (GMT) | |
+| --- | --- |
+| 10h30 | début du code |
+| 12h30 | déjeuner |
+| 13h30 | reprise avec mentors |
+| 15h45 | fin du code, préparation du pitch |
+| 16h00 | présentations de 3 minutes |
+| 17h00 | remise des prix |
+
+## Votre repo
+
+- Ce repo est **privé** et visible uniquement par votre équipe et les organisateurs.
+- Commitez **souvent** et avec des messages clairs : un classement des équipes par activité s'affiche sur le wall de l'événement. Les merges, les commits vides et plus de 3 commits par minute ne sont pas comptés.
+- Poussez sur la branche `main` (le wall lit la branche par défaut).
+- **Ne commitez jamais de clé d'API.** Copiez `.env.example` en `.env`, mettez-y votre `GEMINI_API_KEY`, et gardez `.env` hors de git (déjà dans `.gitignore`).
+
+## Démarrer
+
+Le projet est une application Web PHP 8 (extensions `curl` et `fileinfo`).
 
 ```bash
 cp .env.example .env
-# renseigne les clés Gemini et Supabase dans .env
+# renseigner les clés nécessaires dans .env
 php -S localhost:8000 -t public
 ```
 
-Puis ouvre http://localhost:8000
+Ouvre ensuite http://localhost:8000.
+
+L'application permet de coller un SMS ou d'envoyer une capture d'écran, puis
+affiche une estimation du risque avec des explications en français simple. Le
+mode apprentissage s'active uniquement avec une commande commençant par `/`.
+
+## Configuration
+
+| Variable | Rôle |
+| --- | --- |
+| `LLM_PROVIDER` | `google` ou `groq` |
+| `GEMINI_API_KEY` | Clé Google AI Studio si le fournisseur est `google` |
+| `GEMMA_MODEL` | Modèle Gemma utilisé avec Google |
+| `GROQ_API_KEY` | Clé Groq si le fournisseur est `groq` |
+| `GROQ_MODEL` | Modèle utilisé avec Groq |
+| `SUPABASE_URL` | URL du projet Supabase (synchronisation facultative) |
+| `SUPABASE_PUBLISHABLE_KEY` | Clé publishable Supabase (facultative) |
+
+Ne publie jamais le fichier `.env` ou une clé `secret` / `service_role`
+Supabase. La synchronisation Supabase nécessite aussi une configuration RLS.
 
 ## Déploiement sur Vercel
 
-Le projet utilise PHP. Déploie-le avec le `Dockerfile` FrankenPHP à la racine
-(Vercel Container), et garde le répertoire racine du projet comme **Root
-Directory**. Vercel détecte le Dockerfile : aucun `vercel.json` n'est nécessaire.
+Le projet utilise le `Dockerfile` FrankenPHP à la racine. Garde la racine du
+dépôt comme **Root Directory**, configure les variables d'environnement dont
+l'application a besoin dans Vercel et redéploie après leur modification.
 
-Dans **Vercel → Project Settings → Environment Variables**, ajoute les variables
-nécessaires et redéploie :
-
-- `LLM_PROVIDER` = `google`
-- `GEMINI_API_KEY` = ta clé Google AI Studio
-- `GEMMA_MODEL` = `gemma-4-26b-a4b-it`
-- `SUPABASE_URL` = URL de ton projet Supabase
-- `SUPABASE_PUBLISHABLE_KEY` = clé publishable Supabase
-
-N'ajoute jamais de clé Supabase `secret` ou `service_role`. Le fichier `.env`
-local est ignoré par Git et n'est pas copié dans l'image Docker. Le mode
-apprentissage utilise une session PHP locale, qui n'est pas garantie entre
-instances Vercel ; l'historique du scanner, lui, est synchronisé dans Supabase.
-
-Pour la synchronisation de l'historique, configure `SUPABASE_URL` et
-`SUPABASE_PUBLISHABLE_KEY` dans `.env`, active l'authentification par e-mail,
-et crée `public.scan_history` avec RLS et les politiques ci-dessous dans le SQL
-Editor de Supabase :
-
-```sql
-alter table public.scan_history enable row level security;
-
-drop policy if exists "Users can read their own scan history" on public.scan_history;
-create policy "Users can read their own scan history"
-  on public.scan_history for select to authenticated
-  using ((select auth.uid()) = user_id);
-
-drop policy if exists "Users can insert their own scan history" on public.scan_history;
-create policy "Users can insert their own scan history"
-  on public.scan_history for insert to authenticated
-  with check ((select auth.uid()) = user_id);
-
-drop policy if exists "Users can delete their own scan history" on public.scan_history;
-create policy "Users can delete their own scan history"
-  on public.scan_history for delete to authenticated
-  using ((select auth.uid()) = user_id);
-```
-
-Le navigateur importe une fois l'historique local au premier compte connecté,
-puis synchronise les 30 entrées les plus récentes. Supabase ne reçoit que le
-verdict, la date et un extrait limité à 70 caractères. N'utilise jamais une clé
-Supabase `secret` ou `service_role` dans l'application.
-
-## Stack
-
-PHP 8 (curl, fileinfo) · Gemma via API Google ou Groq · Bootstrap 5 · JavaScript
+Le résultat du scanner est une estimation, pas une garantie. En cas de doute,
+vérifie toujours dans l'application officielle de ton opérateur.
 
 ## Structure
 
+```text
+public/          pages Web et API
+partials/        en-tête et pied de page partagés
+src/             services Gemini, scanner et apprentissage
+data/            formats officiels et signes d'arnaque
+.env.example     modèle de configuration sans secrets
 ```
-public/          pages web + api/analyser.php
-partials/        header.php / footer.php communs
-src/             GeminiService.php, Scanner.php, Apprendre.php
-data/            formats_officiels.json, signes_arnaque.json
-.env             clé API (non versionnée)
-```
-
-## Avertissement
-
-Le verdict est une **estimation du risque**, pas une garantie. En cas de doute,
-vérifie toujours dans l'application officielle de ton opérateur.
->>>>>>> 763fa61 (Initial commit)
