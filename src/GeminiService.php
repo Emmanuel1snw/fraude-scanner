@@ -112,15 +112,14 @@ class GeminiService
     private static function lireEnv(string $chemin): array
     {
         $env = [];
-        if (!is_readable($chemin)) {
-            return $env;
-        }
-        foreach (file($chemin, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $ligne) {
-            if ($ligne[0] === '#' || strpos($ligne, '=') === false) {
-                continue;
+        if (is_readable($chemin)) {
+            foreach (file($chemin, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $ligne) {
+                if ($ligne[0] === '#' || strpos($ligne, '=') === false) {
+                    continue;
+                }
+                [$cle, $valeur] = explode('=', $ligne, 2);
+                $env[trim($cle)] = trim($valeur, " \t\"'");
             }
-            [$cle, $valeur] = explode('=', $ligne, 2);
-            $env[trim($cle)] = trim($valeur, " \t\"'");
         }
         foreach (['LLM_PROVIDER', 'GEMINI_API_KEY', 'GEMMA_MODEL', 'GROQ_API_KEY', 'GROQ_MODEL'] as $cle) {
             $valeur = getenv($cle);
